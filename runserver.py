@@ -1,6 +1,7 @@
 from flask import Flask, request, redirect, url_for, render_template, flash
 from flask_login import LoginManager, login_user, logout_user, current_user, login_required
 from models import User, query_user
+from werkzeug.security import generate_password_hash, check_password_hash
 import os
 import json
 
@@ -33,8 +34,9 @@ def index():
 def login():
     if request.method == 'POST':
         username = request.form.get('uname')
+        password = request.form.get("psw")
         user = query_user(username)
-        if user is not None and request.form['password'] == user['password']:
+        if user is not None and generate_password_hash(request.form['password']) == user['password']:
 
             curr_user = User()
             curr_user.id = user_id
@@ -57,6 +59,7 @@ def register():
     repet_password = request.form.get("repet_psw")
     print(username, password, repet_password)
     if password==repet_password:
+        password=generate_password_hash(password)
         #保存用户名和密码到数据库
         pass
     else:
